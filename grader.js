@@ -25,7 +25,6 @@ var fs = require('fs');
 var program = require('commander');
 var cheerio = require('cheerio');
 var rest = require('restler');
-var HTMLFILE_DEFAULT = "index.html";
 var CHECKSFILE_DEFAULT = "checks.json";
 
 var assertFileExists = function(infile) {
@@ -46,13 +45,7 @@ var loadChecks = function(checksfile) {
 };
 
 var checkHtmlFile = function(htmlfile, checksfile) {
-	console.log("In checkHtmlFile.");
-	console.log(":" + typeof htmlfile + ", " + typeof checksfile);
-	console.log(htmlfile.length);
     $ = cheerioHtmlFile(htmlfile);
-	console.log(typeof $);
-	console.log(":" + typeof htmlfile + ", " + typeof checksfile);
-	console.log(htmlfile.length);
     var checks = loadChecks(checksfile).sort();
     var out = {};
     for(var ii in checks) {
@@ -63,12 +56,6 @@ var checkHtmlFile = function(htmlfile, checksfile) {
 };
 
 var checkUrl = function(urlstring,checksfile) {
-//	console.log("URL type: " + typeof urlstring);
-//	console.log("URL: " + urlstring);
-//	console.log("Chk type: " + typeof checksfile);
-//	console.log("checkfile: " + checksfile);
-//	console.log("\n");
-
 	rest.get(urlstring).on('complete', function(result) {
 		if (result instanceof Error) {
 			sys.puts('Error: ' + result.message);
@@ -81,8 +68,6 @@ var checkUrl = function(urlstring,checksfile) {
 			        var present = $(checks[ii]).length > 0;
 			        out[checks[ii]] = present;
 			}
-			console.log("URL out: " + typeof out);
-			// convert & print
 			var outTheJson = JSON.stringify(out, null, 4);	
 			console.log(outTheJson);
 		}
@@ -103,12 +88,7 @@ if(require.main == module) {
         .option('-f, --file <html_file>', 'Path to index.html')
 		.option('-u, --url <url_string>', 'URL for site')
         .parse(process.argv);
-	//debug
-//	console.log("checks: " + program.checks + ", file: " + program.file + ", url: " + program.url);
-//	if(program.checks) { console.log("yes checks"); }
-//	if(program.file) { console.log("yes file"); }
-//	if(program.url) { console.log("yes url"); }
-	//end debug
+
 	if (program.file && program.url) {
 		console.log("Only specify one of file or url.  Exiting ...");
 		process.exit(1);
@@ -117,12 +97,10 @@ if(require.main == module) {
 		assertFileExists(program.file);
 	    var checkJson = checkHtmlFile(program.file, program.checks);
 	    var outJson = JSON.stringify(checkJson, null, 4);
-		console.log("checkJson: " + typeof checkJson + ", outJson: " + typeof outJson );
 	    console.log(outJson);
 		}
 	else if (program.url)  {
 		// check url
-		console.log("Will check URL.");
 		checkUrl(program.url,program.checks);
 		}
 	else {
