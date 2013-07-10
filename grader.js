@@ -24,6 +24,7 @@ References:
 var fs = require('fs');
 var program = require('commander');
 var cheerio = require('cheerio');
+var rest = require('restler');
 var HTMLFILE_DEFAULT = "index.html";
 var CHECKSFILE_DEFAULT = "checks.json";
 
@@ -45,7 +46,13 @@ var loadChecks = function(checksfile) {
 };
 
 var checkHtmlFile = function(htmlfile, checksfile) {
+	console.log("In checkHtmlFile.");
+	console.log(":" + typeof htmlfile + ", " + typeof checksfile);
+	console.log(htmlfile.length);
     $ = cheerioHtmlFile(htmlfile);
+	console.log(typeof $);
+	console.log(":" + typeof htmlfile + ", " + typeof checksfile);
+	console.log(htmlfile.length);
     var checks = loadChecks(checksfile).sort();
     var out = {};
     for(var ii in checks) {
@@ -55,7 +62,32 @@ var checkHtmlFile = function(htmlfile, checksfile) {
     return out;
 };
 
-var checkUrl = function(
+var checkUrl = function(urlstring,checksfile) {
+//	console.log("URL type: " + typeof urlstring);
+//	console.log("URL: " + urlstring);
+//	console.log("Chk type: " + typeof checksfile);
+//	console.log("checkfile: " + checksfile);
+//	console.log("\n");
+
+	rest.get(urlstring).on('complete', function(result) {
+		if (result instanceof Error) {
+			sys.puts('Error: ' + result.message);
+			this.retry(5000); // try again after 5 sec
+		} else {
+			$ = cheerio.load(result);
+			var checks = loadChecks(checksfile).sort();
+			var out = {};
+			for(var ii in checks) {
+			        var present = $(checks[ii]).length > 0;
+			        out[checks[ii]] = present;
+			}
+			console.log("URL out: " + typeof out);
+			// convert & print
+			var outTheJson = JSON.stringify(out, null, 4);	
+			console.log(outTheJson);
+		}
+	});
+};
 
 var clone = function(fn) {
     // Workaround for commander.js issue.
@@ -72,10 +104,10 @@ if(require.main == module) {
 		.option('-u, --url <url_string>', 'URL for site')
         .parse(process.argv);
 	//debug
-	console.log("checks: " + program.checks + ", file: " + program.file + ", url: " + program.url);
-	if(program.checks) { console.log("yes checks"); }
-	if(program.file) { console.log("yes file"); }
-	if(program.url) { console.log("yes url"); }
+//	console.log("checks: " + program.checks + ", file: " + program.file + ", url: " + program.url);
+//	if(program.checks) { console.log("yes checks"); }
+//	if(program.file) { console.log("yes file"); }
+//	if(program.url) { console.log("yes url"); }
 	//end debug
 	if (program.file && program.url) {
 		console.log("Only specify one of file or url.  Exiting ...");
