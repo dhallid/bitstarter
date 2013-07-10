@@ -55,11 +55,15 @@ var checkHtmlFile = function(htmlfile, checksfile) {
     return out;
 };
 
+var checkUrl = function(
+
 var clone = function(fn) {
     // Workaround for commander.js issue.
     // http://stackoverflow.com/a/6772648
     return fn.bind({});
 };
+
+debugger;
 
 if(require.main == module) {
     program
@@ -81,11 +85,13 @@ if(require.main == module) {
 		assertFileExists(program.file);
 	    var checkJson = checkHtmlFile(program.file, program.checks);
 	    var outJson = JSON.stringify(checkJson, null, 4);
+		console.log("checkJson: " + typeof checkJson + ", outJson: " + typeof outJson );
 	    console.log(outJson);
 		}
 	else if (program.url)  {
 		// check url
 		console.log("Will check URL.");
+		checkUrl(program.url,program.checks);
 		}
 	else {
 		console.log("Must specify one of file or url.  Exiting ...");
