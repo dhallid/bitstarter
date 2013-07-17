@@ -80,29 +80,27 @@ var clone = function(fn) {
     return fn.bind({});
 };
 
-debugger;
-
 if(require.main == module) {
     program
         .option('-c, --checks <check_file>', 'Path to checks.json', clone(assertFileExists), CHECKSFILE_DEFAULT)
         .option('-f, --file <html_file>', 'Path to index.html')
-		.option('-u, --url <url_string>', 'URL for site')
+        .option('-u, --url <url_string>', 'URL for site')
         .parse(process.argv);
 
 	if (program.file && program.url) {
 		console.log("Only specify one of file or url.  Exiting ...");
 		process.exit(1);
-		}
+ 	}
 	else if (program.file)  {
-		assertFileExists(program.file);
-	    var checkJson = checkHtmlFile(program.file, program.checks);
+        assertFileExists(program.file);
+        var checkJson = checkHtmlFile(program.file, program.checks);
 	    var outJson = JSON.stringify(checkJson, null, 4);
 	    console.log(outJson);
-		}
+ 	}
 	else if (program.url)  {
 		// check url
 		checkUrl(program.url,program.checks);
-		}
+ 	}
 	else {
 		console.log("Must specify one of file or url.  Exiting ...");
 		process.exit(1);
