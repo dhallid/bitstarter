@@ -1,4 +1,4 @@
 bitstarter
 ==========
 
-Homework #3, #4
+Homework #3, #4, #6
